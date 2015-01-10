@@ -1,0 +1,9 @@
+## Anti ssh Bruteforce EXAMPLE
+iptables -N SSHSCAN
+
+iptables -A INPUT -i eth0 -p tcp -m tcp --dport 22 -m state --state NEW -j SSHSCAN
+
+iptables -A SSHSCAN -m recent --set --name SSH --rsource
+iptables -A SSHSCAN -m recent --update --seconds 60 --hitcount 5 --name SSH --rsource -j LOG --log-prefix "Anti SSH-Bruteforce: " --log-level 6
+iptables -A SSHSCAN -m recent --update --seconds 60 --hitcount 5 --name SSH --rsource -j LogDrp
+iptables -A SSHSCAN -j ACCEPT
