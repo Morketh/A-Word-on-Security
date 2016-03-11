@@ -22,7 +22,8 @@ for d in drives:
 #				print "DEBUG: SYSTEM = %s SAM = %s" % (base+'/'+win+target[1],base+'/'+win+target[0])
 				dump_file_hashes(base+'/'+win+target[1], base+'/'+win+target[0])
 			except IOError as e:
-				print e
+#				print e
+				print ""
 # Save directory name to avoid duplicates (cron tab prep)
 
 # Output data to Database (<username>:<uid>:<LM-hash>:<NTLM-hash>:<comment>:<homedir>:)
