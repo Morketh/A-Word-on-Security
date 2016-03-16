@@ -1,0 +1,125 @@
+var
+{
+	font-style:italic;
+}
+var.selected
+{
+	color:red;
+}
+var.function
+{
+	font-style:normal;
+}
+div.equ
+{
+	margin-bottom:1em;
+}
+div.sum, div.prod, div.frac, div.fracSmall
+{
+	display:inline-block;
+	text-align:center;
+	vertical-align:middle;
+}
+div.sumTop, div.prodTop, div.sumBottom, div.prodBottom
+{
+	font-size:67%;
+}
+div.sumSigma, div.prodPi
+{
+	font-size:125%;
+}
+div.fracSmall
+{
+	display:inline-block;
+	font-size:67%;
+}
+div.fracTop
+{
+	border-bottom:2px solid black;
+}
+div.fracBottom {}
+div.fracSmallTop
+{
+	border-bottom:1px solid black;
+}
+div.fracSmallBottom {}
+div.fracSlash
+{
+	display:inline;
+}
+div.power div.fracSlash
+{
+	font-size:125%;
+}
+div.fracSlashTop
+{
+	display:inline;
+	font-size:67%;
+	vertical-align:super;
+}
+div.fracSlashBottom
+{
+	display:inline;
+	font-size:67%;
+	vertical-align:sub;
+}
+div.power
+{
+	display:inline;
+	vertical-align:super;
+	font-size:67%;
+}
+div.sub
+{
+	display:inline;
+	vertical-align:sub;
+	font-size:67%;
+}
+div.largeParenthesis, div.largeBottomParenthesis
+{
+	display:inline-block;
+	font-size:250%;
+	margin-top:-.15em;
+	vertical-align:middle;
+}
+div.largeBottomParenthesis
+{
+	vertical-align:text-bottom;
+}
+span.largeParenthesis
+{
+	font-family:'calibri';
+}
+div.largeParenthesis div.power, div.largeBottomParenthesis div.power
+{
+	display:inline-block;
+	vertical-align:super;
+	font-size:26.7%;
+}
+.power div.frac
+{
+	vertical-align:super;
+}
+span.sqrt
+{
+	vertical-align:top;
+	font-size:110%;
+}
+span.sqrtLarge
+{
+	vertical-align:top;
+	font-size:175%;
+}
+div.sqrt, div.sqrtLarge
+{
+	display:inline-block;
+	border-top:1px solid black;
+}
+div.ifBlock
+{
+	display:inline-block;
+	text-align:left;
+	vertical-align:middle;
+}
+div.if
+{}
