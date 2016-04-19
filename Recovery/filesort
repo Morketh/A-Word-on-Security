@@ -1,0 +1,148 @@
+#!/bin/bash
+path=$1   # Starting path to the directory of the junk files
+var=0     # How many records were processed
+
+# reset all the clocks so we can time the events
+SECONDS=0
+FastMatch=0
+DeepScan=0
+JunkRemoval=0
+TotalTime=0
+RansomeMove=0
+clear
+
+# Set up a few newilines to get below the KVM HUD
+echo " "
+echo " "
+
+# Verbose mode can be turned on using the debug_true switch AFTER the path_to_sort
+
+if [[ -z $1 ]]; then
+    echo "Argument list is empty: $0"
+    echo "Usage: $0 PATH_TO_SORT"
+    echo " "
+    echo "Script was written by Andrew Malone for use at Computer Warehouse after recuva data recovery"
+    echo "This script will only touch the TOP level directory and nothing below in the file tree."
+    echo "All Ransomeware file types (Cerber, Locky, etc...) will be moved into 'Encrypted_Data' folder."
+    echo "All junk files (dll, tmp, etc...) will be removed."
+    echo "The $0 program will attempt to first Fast-match files based off of commonly used file types, after a preliminary run"
+    echo "$0 will then run a Deep Scan in order to catogorize files based off of remaining file extentions. Finaly all other files"
+    echo "that dont use extentions will be catogorized into a miscellaneous directory."
+    exit 404 # give the user a 404 error arguments not found
+fi
+
+echo "Searching $1 for file types and then moving all files into grouped folders."
+
+# Add file extention matching here for fast delete
+for ext in lnk dll tmp; do
+    # Make sure all directory names are lowercase for simplicity sake
+    dir=$(echo "$ext" | awk '{print tolower($0)}')
+    echo "Removing Junk Files *.$dir"
+    # Find FILES in THIS directory and down with filename ending in EXT and remove them
+    find "$1" -type f -iname "*.$ext" -exec rm "{}" +
+done
+
+#set junk time
+JunkRemoval=$SECONDS
+(( TotalTime += SECONDS ))
+SECONDS=0 # reset clock for each section keep a total for overall script time
+
+echo "Junk removal took:"
+echo "$(($JunkRemoval / 3600)) hours, $((($JunkRemoval / 60) % 60)) minutes and $(($JunkRemoval % 60)) seconds."
+
+# add extentions here for fast matching
+echo "Backing up Encrypted file Types....."
+
+# set up encrypted ransomeware extenstions here (in the event a public solution becomes avalible i want these seprate)
+for ext in locky cerber; do
+    # Make an Encrypted_Data folder to dump all there encrypted data just to be on the safe side
+    dir="Encrypted_Data"
+    if [ $2 == "debug_true" ]
+    then
+        echo "Removing Junk Files *.$dir"
+    fi
+    # Find FILES in THIS directory and down with filename ending in EXT and remove them
+    find "$1" -maxdepth 1 -type f -iname "*.$ext" -print0 | xargs -0 -I {} mv {} "$dir"
+done
+
+# set Encrypted File move time
+RansomeMove=$SECONDS
+(( TotalTime += SECONDS ))
+SECONDS=0 # reset clock for each section keep a total for overall script time
+
+echo "Movement of all Ransomeware locked files took:"
+echo "$(($RansomeMove / 3600)) hours, $((($RansomeMove / 60) % 60)) minutes and $(($RansomeMove % 60)) seconds."
+
+echo "Running Fastmatch on commonly used file extentions....."
+
+for ext in 123 3dm 3ds 3g2 3gp 602 7z acl acrodata acx aes anf apache apnx arc asc asd asf asm asp aspx asx aux avgdx avi azw bak bat bin bmp brd btn cab cache cat ccp cdd cer cfa cfg cgm chm cis class cmd config cpp crl crt crwl cs csr css csv d dat db dbf dch dcp dif dip djvu dnt doc docb docm docx DOT dotm dotx dtd dynamic emf eot epub exd exe fingerprint fla flv fpx frm getinfo gif glox gpg gz htm html hwp hxh ibd ico ims inf ini irs jar java jpeg jpg jrs js jsnon_ json jsonp jsp key lay lay6 lck lcp ldb ldf localstorage-journal log lrprev lrtemplate lua m3u m4a m4u man manifest max mcdb mdb mdf mht mid mkv mml mov mp3 mp4 mpb mpeg mpg ms11 msi mst mum MYD MYI mzz nef nkd nki odb odg odp ods odt oeaccount ogg old otg otp ots ott p12 paq parsed part pas pcc pdf pek pem phd php pl png pot potm potx ppam pps ppsm ppsx ppt pptm pptx prefs properties psd psh psl psp pub pwt pxc pxs pxt qcow2 rar raw rb reg rtf sav sch sendreport sent sh sig sldm sldx slk sol spi sql SQLITE3 SQLITEDB stc std sti stw svg swf sxc sxd sxi sxm sxw sxx sys tar tarbz2 tbk tgz thmx tiff tix tmp txt uf1 uop uot url usage vb vbs vdi vdm versions vir vmdk vmx vob vpol w wav wb2 wer wk1 wks wma wmv woff wpl xlc xlm xls xlsb xlsm xlsx xlt xltm xltx xlw xml xmp xps xul zgz zip; do
+    # Make sure all directory names are lowercase for simplicity sake
+    dir=$(echo "$ext" | awk '{print tolower($0)}')
+
+    # this next line should eliminate "mkdir: cannot create directory ‘css’: File exists" errors
+    dir="$dir"_files
+    if [ $2 == "debug_true" ]
+    then
+        echo "Making directory '$dir'_files and moving *.$dir files"
+    fi
+    mkdir -p "$dir"
+    # Find FILES in THIS directory with filename ending in EXT and move them to DIR
+    find "$1" -maxdepth 1 -type f -iname "*.$ext" -print0 | xargs -0 -I {} mv {} "$dir"
+done
+
+# set FastMatch Time
+FastMatch=$SECONDS
+(( TotalTime += SECONDS ))
+SECONDS=0 # reset clock for each section keep a total for overall script time
+
+echo "Fastmatch took:"
+echo "$(($FastMatch / 3600)) hours, $((($FastMatch / 60) % 60)) minutes and $(($FastMatch % 60)) seconds."
+
+echo "Fastmatch complete now attempting to cleanup other filetypes..."
+for ext in `find . -maxdepth 1 -type f | awk -F. '{print $NF}' | grep -v "/" | sort -u`; do
+    # Make sure all directory names are lowercase for simplicity sake
+    dir=$(echo "$ext" | awk '{print tolower($0)}')
+    if [ $2 == "debug_true" ]
+    then
+        echo "Making directory $dir and moving *.$dir files"
+    fi
+    mkdir -p "$dir"
+    # Find FILES in THIS directory with filename ending in EXT and move them to DIR
+    find "$1" -maxdepth 1 -type f -iname "*.$ext" -print0 | xargs -0 -I {} mv {} "$dir"
+done
+
+# set DeepScan Time
+DeepScan=$SECONDS
+(( TotalTime += SECONDS ))
+SECONDS=0 # reset clock for each section keep a total for overall script time
+
+echo "Deep Scan took:"
+echo "$(($DeepScan / 3600)) hours, $((($DeepScan / 60) % 60)) minutes and $(($DeepScan % 60)) seconds."
+
+# miscellaneous files
+mkdir -p "miscellaneous"
+find "$1" -maxdepth 1 -type f -print0 | xargs -0 -I {} mv {} "miscellaneous"
+
+# set FastMatch Time
+MiscMatch=$SECONDS
+(( TotalTime += SECONDS ))
+SECONDS=0 # reset clock for each section keep a total for overall script time
+
+echo "Miscellaneous Matching took:"
+echo "$(($MiscMatch / 3600)) hours, $((($MiscMatch / 60) % 60)) minutes and $(($MiscMatch % 60)) seconds."
+
+echo "Cleaning up empty directories and files....."
+emptyF=$(find $1 -type f -empty | wc -l)
+emptyD=$(find $1 -type d -empty | wc -l)
+
+echo "Found $emptyF Files and $emptyD Directories"
+
+find ./ -type f -empty -print0 | xargs -0 -I {} /bin/rm "{}"
+find ./ -type d -empty -print0 | xargs -0 -I {} /bin/rm -r "{}"
+
+# set total Script time
+(( TotalTime += SECONDS ))
+
+echo "Total Script time:"
+echo "$(($TotalTime / 3600)) hours, $((($TotalTime / 60) % 60)) minutes and $(($TotalTime % 60)) seconds."
+
