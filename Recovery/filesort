@@ -57,11 +57,12 @@ echo "Backing up Encrypted file Types....."
 for ext in locky cerber; do
     # Make an Encrypted_Data folder to dump all there encrypted data just to be on the safe side
     dir="Encrypted_Data"
+    mkdir -p "$dir"
     if [ $2 == "debug_true" ]
     then
-        echo "Removing Junk Files *.$dir"
+        echo "Moving Encrypted Files *.$ext ---> $dir"
     fi
-    # Find FILES in THIS directory and down with filename ending in EXT and remove them
+    # Find FILES in THIS directory and down with filename ending in EXT and move them into the Encrypted data directory
     find "$1" -maxdepth 1 -type f -iname "*.$ext" -print0 | xargs -0 -I {} mv {} "$dir"
 done
 
@@ -145,4 +146,3 @@ find ./ -type d -empty -print0 | xargs -0 -I {} /bin/rm -r "{}"
 
 echo "Total Script time:"
 echo "$(($TotalTime / 3600)) hours, $((($TotalTime / 60) % 60)) minutes and $(($TotalTime % 60)) seconds."
-
